@@ -1,0 +1,151 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Join Dwarkesh Seva Mandal to volunteer, support community activities, and make a difference.">
+  <title>Dwarkesh Seva Mandal | Join Us</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="app.js" defer></script>
+</head>
+<body class="auth-page">
+  <header class="site-header">
+    <a class="brand" href="/">
+      <span class="brand-icon">ॐ</span>
+      <span>
+        <strong>Dwarkesh Seva Mandal</strong>
+        <small>Service • Compassion • Community</small>
+      </span>
+    </a>
+    <a class="header-link" href="#account">Join our community ↗</a>
+  </header>
+
+  <main class="hero">
+    <section class="hero-copy">
+      <span class="eyebrow">A COMMUNITY THAT CARES</span>
+      <h1>Small acts.<br><span>Meaningful change.</span></h1>
+      <p class="hero-description">
+        Come together to serve people, support education, care for animals
+        and make our community stronger.
+      </p>
+
+      <div class="hero-points">
+        <div class="hero-point">
+          <span class="point-icon">🤝</span>
+          <div>
+            <strong>Volunteer with purpose</strong>
+            <p>Discover activities and register for scheduled seva.</p>
+          </div>
+        </div>
+        <div class="hero-point">
+          <span class="point-icon">💛</span>
+          <div>
+            <strong>Support a meaningful cause</strong>
+            <p>Record your donation pledge and track your contributions.</p>
+          </div>
+        </div>
+        <div class="hero-point">
+          <span class="point-icon">🌱</span>
+          <div>
+            <strong>Make every effort count</strong>
+            <p>Take part in practical community-focused initiatives.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="hero-note">
+        <span>✦</span>
+        <p>“The best way to find yourself is to lose yourself in the service of others.”</p>
+      </div>
+    </section>
+
+    <section class="auth-card" id="account">
+      <div class="auth-heading">
+        <span class="eyebrow">YOUR JOURNEY STARTS HERE</span>
+        <h2 id="authTitle">Welcome back</h2>
+        <p id="authSubtitle">Log in to continue your seva journey.</p>
+      </div>
+
+      <div class="auth-tabs" role="tablist" aria-label="Account action">
+        <button class="auth-tab active" id="loginTab" type="button">
+          Log in
+        </button>
+        <button class="auth-tab" id="registerTab" type="button">
+          Create account
+        </button>
+      </div>
+
+      <div id="message" class="message" role="status" aria-live="polite"></div>
+
+      <form id="loginForm">
+        <div class="form-group">
+          <label for="loginEmail">Email address</label>
+          <input id="loginEmail" name="email" type="email"
+                 placeholder="you@example.com" autocomplete="email" required>
+        </div>
+
+        <div class="form-group">
+          <label for="loginPassword">Password</label>
+          <input id="loginPassword" name="password" type="password"
+                 placeholder="Enter your password"
+                 autocomplete="current-password" required>
+        </div>
+
+        <button class="btn btn-primary btn-full" type="submit">
+          Log in to your account <span>→</span>
+        </button>
+      </form>
+
+      <form id="registerForm" hidden>
+        <div class="form-group">
+          <label for="registerName">Full name</label>
+          <input id="registerName" name="name" type="text"
+                 placeholder="Enter your full name"
+                 minlength="2" maxlength="80" autocomplete="name" required>
+        </div>
+
+        <div class="form-group">
+          <label for="registerEmail">Email address</label>
+          <input id="registerEmail" name="email" type="email"
+                 placeholder="you@example.com" autocomplete="email" required>
+        </div>
+
+        <div class="form-group">
+          <label for="registerPhone">Phone number</label>
+          <input id="registerPhone" name="phone" type="tel"
+                 placeholder="Enter your phone number"
+                 minlength="7" maxlength="20" autocomplete="tel" required>
+        </div>
+
+        <div class="form-group">
+          <label for="registerPassword">Create password</label>
+          <input id="registerPassword" name="password" type="password"
+                 placeholder="At least 8 characters"
+                 minlength="8" autocomplete="new-password" required>
+        </div>
+
+        <div class="form-group">
+          <label for="registerRole">I want to join as a</label>
+          <select id="registerRole" name="role" required>
+            <option value="volunteer">Volunteer — participate in activities</option>
+            <option value="donor">Donor — support community causes</option>
+          </select>
+        </div>
+
+        <button class="btn btn-primary btn-full" type="submit">
+          Create my account <span>→</span>
+        </button>
+      </form>
+
+      <p class="auth-footnote">
+        By continuing, you agree to use the community platform responsibly.
+      </p>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>© <span id="year"></span> Dwarkesh Seva Mandal. Made for community service.</p>
+  </footer>
+</body>
+</html>

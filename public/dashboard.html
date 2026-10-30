@@ -1,0 +1,605 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Manage your volunteer activities and community donation pledges.">
+  <title>My Dashboard | Dwarkesh Seva Mandal</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <div class="dashboard-shell">
+    <header class="dashboard-top">
+      <a class="brand" href="/">
+        <span class="brand-icon">ॐ</span>
+        <span>
+          <strong>Dwarkesh Seva Mandal</strong>
+          <small>Service • Compassion • Community</small>
+        </span>
+      </a>
+
+      <div class="dashboard-actions">
+        <div class="user-chip">
+          <div class="user-avatar" id="userAvatar">D</div>
+          <div>
+            <strong id="userName">Loading...</strong>
+            <small id="userRole">Loading account</small>
+          </div>
+        </div>
+
+        <button class="btn btn-secondary" id="themeButton" type="button">
+          🌙 Theme
+        </button>
+        <button class="btn btn-outline" id="logoutButton" type="button">
+          Log out ↗
+        </button>
+      </div>
+    </header>
+
+    <main>
+      <section class="dashboard-hero">
+        <span class="eyebrow">YOUR SEVA SPACE</span>
+        <h1 id="welcomeHeading">Welcome to your dashboard.</h1>
+        <p id="welcomeText">
+          Discover opportunities to serve your community and make a difference.
+        </p>
+      </section>
+
+      <section class="stats-grid" aria-label="Your activity summary">
+        <article class="stat-card">
+          <span class="stat-icon">🤝</span>
+          <strong id="statActivities">0</strong>
+          <span id="statActivitiesLabel">Activities available</span>
+        </article>
+
+        <article class="stat-card">
+          <span class="stat-icon">📅</span>
+          <strong id="statRegistered">0</strong>
+          <span id="statRegisteredLabel">Activities registered</span>
+        </article>
+
+        <article class="stat-card">
+          <span class="stat-icon">💛</span>
+          <strong id="statDonation">₹0</strong>
+          <span id="statDonationLabel">Total donation pledges</span>
+        </article>
+      </section>
+
+      <section id="activitiesSection">
+        <div class="section-heading">
+          <div>
+            <span class="eyebrow" id="activityEyebrow">MAKE A DIFFERENCE</span>
+            <h2 id="activityHeading">Explore seva activities</h2>
+            <p id="activityDescription">
+              Choose an activity and check its scheduled date before registering.
+            </p>
+          </div>
+        </div>
+
+        <div class="toolbar">
+          <input
+            class="search-input"
+            id="searchInput"
+            type="search"
+            placeholder="Search activities or causes..."
+            aria-label="Search activities"
+          >
+
+          <select
+            class="filter-select"
+            id="categoryFilter"
+            aria-label="Filter by category"
+          >
+            <option value="all">All categories</option>
+            <option value="Community">Community</option>
+            <option value="Education">Education</option>
+            <option value="Health">Health</option>
+            <option value="Animal Welfare">Animal Welfare</option>
+          </select>
+        </div>
+
+        <div id="activityMessage" class="inline-message"
+             role="status" aria-live="polite"></div>
+
+        <div class="activity-grid" id="activityGrid">
+          <div class="empty-state">Loading activities...</div>
+        </div>
+      </section>
+
+      <section id="donationSection" hidden>
+        <div class="section-heading">
+          <div>
+            <span class="eyebrow">SUPPORT A CAUSE</span>
+            <h2>Make a donation pledge</h2>
+            <p>
+              Choose a cause and record the amount you intend to contribute.
+            </p>
+          </div>
+        </div>
+
+        <div class="donation-panel">
+          <h3>Your contribution matters</h3>
+          <p class="helper-text">
+            This demo records your pledge in the website. It does not transfer
+            money or process an online payment.
+          </p>
+
+          <form class="donation-form" id="donationForm">
+            <div class="form-group">
+              <label for="donationCause">Choose a cause</label>
+              <select id="donationCause" required>
+                <option value="">Select a cause</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="donationAmount">Pledge amount (₹)</label>
+              <input
+                class="donation-input"
+                id="donationAmount"
+                type="number"
+                min="1"
+                max="10000000"
+                step="1"
+                placeholder="e.g. 500"
+                required
+              >
+            </div>
+
+            <button class="btn btn-primary" id="donationButton" type="submit">
+              Record pledge
+            </button>
+          </form>
+
+          <div id="donationMessage" class="inline-message"
+               role="status" aria-live="polite"></div>
+        </div>
+      </section>
+
+      <section id="historySection">
+        <div class="section-heading">
+          <div>
+            <span class="eyebrow">YOUR JOURNEY</span>
+            <h2 id="historyHeading">Your activity history</h2>
+            <p id="historyDescription">
+              Review the activities and contributions saved to your account.
+            </p>
+          </div>
+
+          <button class="btn btn-secondary" id="refreshHistoryButton"
+                  type="button">
+            ↻ Refresh history
+          </button>
+        </div>
+
+        <div id="historyMessage" class="inline-message"
+             role="status" aria-live="polite"></div>
+
+        <div class="history-list" id="historyList">
+          <div class="empty-state">Loading your history...</div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="dashboard-footer">
+      <span>© <span id="year"></span> Dwarkesh Seva Mandal</span>
+      <span>Serving together, growing together. 💛</span>
+    </footer>
+  </div>
+
+  <script>
+    const state = {
+      user: null,
+      activities: [],
+      history: []
+    };
+
+    const $ = (id) => document.getElementById(id);
+
+    $("year").textContent = new Date().getFullYear();
+
+    function formatDate(dateString) {
+      if (!dateString) return "Date not available";
+
+      const parts = dateString.split("-").map(Number);
+
+      if (parts.length !== 3 || parts.some(Number.isNaN)) {
+        return dateString;
+      }
+
+      const date = new Date(parts[0], parts[1] - 1, parts[2]);
+
+      return date.toLocaleDateString("en-IN", {
+        day: "numeric",
+        month: "long",
+        year: "numeric"
+      });
+    }
+
+    function formatMoney(value) {
+      return new Intl.NumberFormat("en-IN", {
+        style: "currency",
+        currency: "INR",
+        maximumFractionDigits: 2
+      }).format(Number(value) || 0);
+    }
+
+    function escapeHTML(value) {
+      return String(value ?? "").replace(/[&<>"']/g, (character) => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+      })[character]);
+    }
+
+    function showInlineMessage(id, message, type = "") {
+      const element = $(id);
+      element.textContent = message;
+      element.className = "inline-message show";
+
+      if (type) element.classList.add(type);
+    }
+
+    function clearInlineMessage(id) {
+      const element = $(id);
+      element.textContent = "";
+      element.className = "inline-message";
+    }
+
+    async function apiRequest(url, options = {}) {
+      const response = await fetch(url, {
+        credentials: "same-origin",
+        ...options,
+        headers: {
+          ...(options.body ? { "Content-Type": "application/json" } : {}),
+          ...(options.headers || {})
+        }
+      });
+
+      const result = await response.json().catch(() => ({
+        message: "The server returned an invalid response."
+      }));
+
+      if (response.status === 401) {
+        window.location.replace("/");
+        throw new Error("Your session has expired. Please log in again.");
+      }
+
+      if (!response.ok) {
+        throw new Error(result.message || "Request failed.");
+      }
+
+      return result;
+    }
+
+    function setBusy(button, busy, busyText, originalText) {
+      button.disabled = busy;
+      button.textContent = busy ? busyText : originalText;
+    }
+
+    function updateRoleInterface() {
+      const isVolunteer = state.user.role === "volunteer";
+
+      $("userName").textContent = state.user.name;
+      $("userRole").textContent = isVolunteer ? "Volunteer account" : "Donor account";
+      $("userAvatar").textContent =
+        state.user.name.trim().charAt(0).toUpperCase() || "D";
+
+      $("welcomeHeading").textContent = `Welcome, ${state.user.name}!`;
+
+      if (isVolunteer) {
+        $("welcomeText").textContent =
+          "Explore community activities, check their scheduled dates, " +
+          "register to participate and track your seva journey.";
+
+        $("activityHeading").textContent = "Explore seva activities";
+        $("activityDescription").textContent =
+          "Choose an activity and check its scheduled date before registering.";
+
+        $("statRegisteredLabel").textContent = "Activities registered";
+        $("statDonationLabel").textContent = "Donation pledges";
+
+        $("donationSection").hidden = true;
+        $("activityEyebrow").textContent = "MAKE A DIFFERENCE";
+        $("historyHeading").textContent = "Your activity history";
+        $("historyDescription").textContent =
+          "See the activities you have registered for and their scheduled dates.";
+      } else {
+        $("welcomeText").textContent =
+          "Support community welfare causes and keep track of the donation " +
+          "pledges you record on this website.";
+
+        $("activityHeading").textContent = "Explore community causes";
+        $("activityDescription").textContent =
+          "Learn about each cause and select one when recording a pledge.";
+
+        $("statRegisteredLabel").textContent = "Pledges recorded";
+        $("statDonationLabel").textContent = "Total pledged";
+
+        $("donationSection").hidden = false;
+        $("activityEyebrow").textContent = "SUPPORT A CAUSE";
+        $("historyHeading").textContent = "Your donation history";
+        $("historyDescription").textContent =
+          "Review the pledge amounts saved to your account.";
+      }
+    }
+
+    function renderActivities() {
+      const query = $("searchInput").value.trim().toLowerCase();
+      const category = $("categoryFilter").value;
+
+      const filtered = state.activities.filter((activity) => {
+        const matchesQuery = [
+          activity.title,
+          activity.description,
+          activity.goal,
+          activity.category
+        ].some((value) => String(value).toLowerCase().includes(query));
+
+        const matchesCategory =
+          category === "all" || activity.category === category;
+
+        return matchesQuery && matchesCategory;
+      });
+
+      if (filtered.length === 0) {
+        $("activityGrid").innerHTML =
+          '<div class="empty-state">No matching activities found. Try another search or category.</div>';
+        return;
+      }
+
+      const isVolunteer = state.user.role === "volunteer";
+
+      $("activityGrid").innerHTML = filtered.map((activity) => `
+        <article class="activity-card">
+          <div class="activity-icon">${escapeHTML(activity.icon)}</div>
+          <span class="activity-category">${escapeHTML(activity.category)}</span>
+          <h3>${escapeHTML(activity.title)}</h3>
+          <p>${escapeHTML(activity.description)}</p>
+
+          ${isVolunteer ? `
+            <div class="activity-schedule">
+              <strong>📅 Scheduled date</strong><br>
+              ${escapeHTML(formatDate(activity.scheduleDate))}
+            </div>
+          ` : ""}
+
+          <div class="activity-goal">
+            <strong>Cause:</strong> ${escapeHTML(activity.goal)}
+          </div>
+
+          ${isVolunteer ? `
+            <button
+              class="btn btn-primary join-button"
+              type="button"
+              data-activity="${escapeHTML(activity.id)}">
+              Register for activity →
+            </button>
+          ` : `
+            <button
+              class="btn btn-secondary cause-button"
+              type="button"
+              data-activity="${escapeHTML(activity.id)}">
+              Select this cause
+            </button>
+          `}
+        </article>
+      `).join("");
+
+      document.querySelectorAll(".join-button").forEach((button) => {
+        button.addEventListener("click", () => registerForActivity(button));
+      });
+
+      document.querySelectorAll(".cause-button").forEach((button) => {
+        button.addEventListener("click", () => {
+          $("donationCause").value = button.dataset.activity;
+          $("donationSection").scrollIntoView({
+            behavior: "smooth",
+            block: "center"
+          });
+          $("donationAmount").focus();
+        });
+      });
+    }
+
+    async function registerForActivity(button) {
+      clearInlineMessage("activityMessage");
+
+      const originalText = "Register for activity →";
+      setBusy(button, true, "Registering...", originalText);
+
+      try {
+        const result = await apiRequest("/api/volunteer-interest", {
+          method: "POST",
+          body: JSON.stringify({
+            activity: button.dataset.activity
+          })
+        });
+
+        showInlineMessage("activityMessage", result.message, "success");
+        await loadHistory();
+      } catch (error) {
+        showInlineMessage("activityMessage", error.message, "error");
+      } finally {
+        setBusy(button, false, false, originalText);
+      }
+    }
+
+    function populateDonationCauses() {
+      $("donationCause").innerHTML =
+        '<option value="">Select a cause</option>' +
+        state.activities.map((activity) => `
+          <option value="${escapeHTML(activity.id)}">
+            ${escapeHTML(activity.icon)} ${escapeHTML(activity.title)}
+          </option>
+        `).join("");
+    }
+
+    async function submitDonation(event) {
+      event.preventDefault();
+      clearInlineMessage("donationMessage");
+
+      const button = $("donationButton");
+      const originalText = "Record pledge";
+      setBusy(button, true, "Recording...", originalText);
+
+      try {
+        const result = await apiRequest("/api/donations", {
+          method: "POST",
+          body: JSON.stringify({
+            activity: $("donationCause").value,
+            amount: $("donationAmount").value
+          })
+        });
+
+        showInlineMessage("donationMessage", result.message, "success");
+        $("donationForm").reset();
+
+        await loadHistory();
+      } catch (error) {
+        showInlineMessage("donationMessage", error.message, "error");
+      } finally {
+        setBusy(button, false, false, originalText);
+      }
+    }
+
+    async function loadHistory() {
+      clearInlineMessage("historyMessage");
+
+      try {
+        if (state.user.role === "volunteer") {
+          const result = await apiRequest("/api/my-volunteer-interests");
+          state.history = result.interests || [];
+          renderVolunteerHistory();
+        } else {
+          const result = await apiRequest("/api/my-donations");
+          state.history = result.donations || [];
+          renderDonorHistory();
+        }
+      } catch (error) {
+        $("historyList").innerHTML =
+          '<div class="empty-state">Unable to load your history.</div>';
+
+        showInlineMessage("historyMessage", error.message, "error");
+      }
+    }
+
+    function renderVolunteerHistory() {
+      const interests = state.history;
+
+      $("statActivities").textContent = state.activities.length;
+      $("statRegistered").textContent = interests.length;
+      $("statDonation").textContent = "₹0";
+
+      if (interests.length === 0) {
+        $("historyList").innerHTML = `
+          <div class="empty-state">
+            You have not registered for an activity yet.
+            Choose an activity above to get started.
+          </div>`;
+        return;
+      }
+
+      $("historyList").innerHTML = interests.map((item) => `
+        <article class="history-item">
+          <div class="history-icon">${escapeHTML(item.icon)}</div>
+          <div class="history-content">
+            <strong>${escapeHTML(item.title)}</strong>
+            <small>Scheduled: ${escapeHTML(formatDate(item.scheduleDate))}</small>
+            <small>Registered: ${escapeHTML(item.created_at || "Saved")}</small>
+          </div>
+          <span class="history-amount">Registered ✓</span>
+        </article>
+      `).join("");
+    }
+
+    function renderDonorHistory() {
+      const donations = state.history;
+      const total = donations.reduce(
+        (sum, item) => sum + (Number(item.amount) || 0),
+        0
+      );
+
+      $("statActivities").textContent = state.activities.length;
+      $("statRegistered").textContent = donations.length;
+      $("statDonation").textContent = formatMoney(total);
+
+      if (donations.length === 0) {
+        $("historyList").innerHTML = `
+          <div class="empty-state">
+            No donation pledges recorded yet.
+            Select a cause above to record your first pledge.
+          </div>`;
+        return;
+      }
+
+      $("historyList").innerHTML = donations.map((item) => `
+        <article class="history-item">
+          <div class="history-icon">${escapeHTML(item.icon)}</div>
+          <div class="history-content">
+            <strong>${escapeHTML(item.title)}</strong>
+            <small>Pledge recorded: ${escapeHTML(item.created_at || "Saved")}</small>
+          </div>
+          <span class="history-amount">${escapeHTML(formatMoney(item.amount))}</span>
+        </article>
+      `).join("");
+    }
+
+    async function loadActivities() {
+      const result = await apiRequest("/api/activities");
+      state.activities = result.activities || [];
+
+      $("statActivities").textContent = state.activities.length;
+      populateDonationCauses();
+      renderActivities();
+    }
+
+    async function logout() {
+      $("logoutButton").disabled = true;
+
+      try {
+        await apiRequest("/api/logout", { method: "POST" });
+        window.location.replace("/");
+      } catch (error) {
+        showInlineMessage("historyMessage", error.message, "error");
+        $("logoutButton").disabled = false;
+      }
+    }
+
+    async function startDashboard() {
+      try {
+        const result = await apiRequest("/api/me");
+        state.user = result.user;
+
+        updateRoleInterface();
+
+        await loadActivities();
+        await loadHistory();
+      } catch (error) {
+        if (error.message) {
+          showInlineMessage("historyMessage", error.message, "error");
+        }
+      }
+    }
+
+    $("searchInput").addEventListener("input", renderActivities);
+    $("categoryFilter").addEventListener("change", renderActivities);
+    $("donationForm").addEventListener("submit", submitDonation);
+    $("logoutButton").addEventListener("click", logout);
+    $("refreshHistoryButton").addEventListener("click", loadHistory);
+
+    $("themeButton").addEventListener("click", () => {
+      document.body.classList.toggle("dark");
+
+      const darkMode = document.body.classList.contains("dark");
+      $("themeButton").textContent = darkMode ? "☀️ Light mode" : "🌙 Theme";
+    });
+
+    startDashboard();
+  </script>
+</body>
+</html>
